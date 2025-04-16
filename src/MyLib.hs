@@ -70,15 +70,20 @@ runState'       (MkState f)      s0 =  f s0
 data Tree a = Leaf a | Node (Tree a) (Tree a) deriving Show
 
 instance Functor Tree where
-   fmap :: (a -> b) -> Tree a  -> Tree b
-   fmap    f        (Leaf a)   =  Leaf $ f a
-   fmap    f        (Node x y) =  Node (f <$> x) (f <$> y)
+   fmap :: (a -> b) -> Tree a     -> Tree b
+   fmap    f           (Leaf a)   =  Leaf $ f a
+   fmap    f           (Node x y) =  Node (f <$> x) (f <$> y)
 
--- >>> relabel 0 (Node (Leaf "a") (Node (Leaf "b") (Leaf "c")))
+-- >>> relabel 0 (Node (Node (Leaf "a") (Lead "b")) (Node (Leaf "c") (Leaf "d")))
 -- Node (Leaf (1,"a")) (Node (Leaf (3,"b")) (Leaf (4,"c")))
-relabel :: Integer -> Tree a -> Tree (Integer, a)
-relabel n (Leaf x) = Leaf (n, x)
-relabel n (Node x y) = Node (relabel (n+1) x) (relabel (n+2) y)
+relabel :: Integer   -> Tree a     ->  Tree (Integer, a)
+relabel n t = fst $ go n t
+
+go :: Integer -> Tree a     -> (Tree (Integer, a), Integer)
+go    n          (Leaf x)   =  (Leaf (n, x), n + 1)
+go    n          (Node l r) =  let (l', n1)   = go n l
+                                   (r', n2)   = go n1 r
+                               in  (Node l' r', n2)
 
 -- :t relabel' (Node (Leaf "a") (Node (Leaf "b") (Leaf "c")))
 -- :: State Integer (Tree (Integer, String))
@@ -86,14 +91,13 @@ relabel n (Node x y) = Node (relabel (n+1) x) (relabel (n+2) y)
 -- :t runState
 -- runState :: State s a -> s -> (a, s)
 -- 
--- >>> flip runState 0 $ relabel' (Node (Leaf "a") (Node (Leaf "b") (Leaf "c")))
--- (Node (Leaf (0,"a")) (Node (Leaf (1,"b")) (Leaf (2,"c"))),3)
+-- >>> flip runState 0 $ relabel' (Node (Node (Leaf "a") (Leaf "b")) (Node (Leaf "c") (Leaf "d")))
+-- (Node (Node (Leaf (0,"a")) (Leaf (1,"b"))) (Node (Leaf (2,"c")) (Leaf (3,"d"))),4)
 relabel' :: Tree a -> State Integer (Tree (Integer, a))
 relabel' (Leaf x) = do
-                       n <- get
-                       set $ n + 1
-                       return $ Leaf (n, x)
-relabel' (Node x y) = do
-                        x' <- relabel' x
-                        y' <- relabel' y
-                        return $ Node x' y'
+                      n <- get
+                      set $ n + 1
+                      return $ Leaf (n, x)
+relabel' (Node l r) = relabel' l >>= \l' ->
+                      relabel' r >>= \r' ->
+                      return $ Node l' r'

@@ -22,9 +22,9 @@ instance Applicative (State s) where
 -- (<*>) :: f (a -> b)                   ->  f a                     -> f b
    (<*>) :: State s (a -> b)             ->  State s a               -> State s b
 -- (<*>) :: (s -> (a -> b, s))           ->  (s -> (a, s))           -> (s -> (b, s))
-   MkState f                             <*> MkState g             =  MkState $ \s0 -> let (f', s1)   = f s0
-                                                                                           (a, s2)    = g s1
-                                                                                       in  (f' a, s2)
+   MkState f                             <*> MkState g               =  MkState $ \s0 -> let (f', s1)   = f s0
+                                                                                             (a, s2)    = g s1
+                                                                                         in  (f' a, s2)
 -- pure :: a -> f a
    pure :: a -> State s a
    pure    a =  MkState $ \s -> (a, s)
@@ -33,7 +33,7 @@ instance Monad (State s) where
 -- (>>=) :: m a                   ->  (a -> m b)                   -> m b
    (>>=) :: State s a             ->  (a -> State s b)             -> State s b
 -- (>>=) :: (s -> (a, s))         ->  (a -> (s -> (b, s)))         -> (s -> (b, s))
-   (MkState f)                    >>= g                            =  MkState $ \s0 -> let (a, s1)    = f s0
+   MkState f                      >>= g                            =  MkState $ \s0 -> let (a, s1)     = f s0
                                                                                            MkState g' = g a
                                                                                        in  g' s1
 
@@ -60,3 +60,9 @@ evalState       (MkState f)   =  \s0 -> let (a, _s1) = f s0 in a
 runState' ::    State s a -> s -> (a, s)
 -- runState' :: (s -> (a, s)) -> s  -> (a, s)
 runState'       (MkState f)      s0 =  f s0
+
+-- task 4:
+-- ski: another exercise, define a reasonable type `Tree' of trees (you should be able to make it a `Functor'), and then define `label :: Tree a
+--      -> Tree (Integer,a)', numbering every element with a running index, starting at `0', counting upwards
+-- ski: you could make two definitions of `label', one "direct", and one using your `State'
+-- ski: (it might help to define a `tick :: State Integer Integer', that yields the current count, while also post-incrementing it)

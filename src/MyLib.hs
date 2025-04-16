@@ -17,6 +17,14 @@ instance Functor (State s) where
 -- fmap :: (a -> b) -> State (s -> (a, s)) -> State (s -> (b, s))
    fmap    f           (MkState g)         =  MkState $ \s0 -> let (a, s1) = g s0 in (f a, s1)
 
+instance Applicative (State s) where
+-- <*> :: f (a -> b)                   -> f a                     -> f b
+-- <*> :: State s (a -> b)             -> State s a               -> State s b
+-- <*> :: MkState (s0 -> (a -> b, s1)) -> MkState (s0 -> (a, s1)) -> MkState (s0 -> (b, s1))
+   (<*>)  (MkState f)                     (MkState g)             =  MkState $ \s0 -> let (f', s1)   = f s0
+                                                                                          (a, s2)    = g s1
+                                                                                       in (f' a, s2)
+
 --instance Monad State s where
 --(>>=) :: State s a       -> (a -> State s b)              -> State s b
 --       f               ->  g                            -> _

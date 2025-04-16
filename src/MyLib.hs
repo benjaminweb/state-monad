@@ -43,9 +43,9 @@ return x    = MkState $ \s -> (x, s)
 -- [exa]: (the types of these should be roughly `s -> State s ()` and `State s s`, respectively)
 
 set :: s -> State s ()
--- set :: s  -> (s -> ((), s))
-set    s1 =  MkState $ \_s0 -> ((), s1)
+-- set :: s -> (s -> ((), s))
+set    s1   =  MkState $ \_s0 -> ((), s1)
 
 get :: State s s
 -- get :: (s -> (s, s))
-get    = MkState $ \s -> (s, s)
+get    =  MkState $ \s -> (s, s)

@@ -77,7 +77,7 @@ instance Functor Tree where
 -- >>> relabel 0 (Node (Node (Leaf "a") (Lead "b")) (Node (Leaf "c") (Leaf "d")))
 -- Node (Leaf (1,"a")) (Node (Leaf (3,"b")) (Leaf (4,"c")))
 relabel :: Integer   -> Tree a     ->  Tree (Integer, a)
-relabel n t = fst $ go n t
+relabel = (fst . ) . go
 
 go :: Integer -> Tree a     -> (Tree (Integer, a), Integer)
 go    n          (Leaf x)   =  (Leaf (n, x), n + 1)

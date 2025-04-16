@@ -9,13 +9,13 @@ someFunc = putStrLn "someFunc"
 --   more parameters such as (a->b->s->(result, s)), then you add Functor Applicative Monad instances and eventually it just works
 
 -- type State s a = (s -> (a, s))
-newtype State s a = State (s -> (a, s))
+newtype State s a = MkState (s -> (a, s))
 
 instance Functor (State s) where
 -- fmap :: (a -> b) -> f a                 -> f b
 -- fmap :: (a -> b) -> State s a           -> State s b
 -- fmap :: (a -> b) -> State (s -> (a, s)) -> State (s -> (b, s))
-   fmap    f           (State g)           =  State $ \s0 -> let (a, s1) = g s0 in (f a, s1)
+   fmap    f           (MkState g)         =  MkState $ \s0 -> let (a, s1) = g s0 in (f a, s1)
 
 --instance Monad State s where
 --(>>=) :: State s a       -> (a -> State s b)              -> State s b
@@ -27,4 +27,4 @@ instance Functor (State s) where
 return :: a    -> State s a
 -- return :: a -> (s -> (a, s))
 -- return x = \s -> _ :: (a, s)
-return x    = State $ \s -> (x, s)
+return x    = MkState $ \s -> (x, s)

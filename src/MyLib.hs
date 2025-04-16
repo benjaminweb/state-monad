@@ -66,3 +66,34 @@ runState'       (MkState f)      s0 =  f s0
 --      -> Tree (Integer,a)', numbering every element with a running index, starting at `0', counting upwards
 -- ski: you could make two definitions of `label', one "direct", and one using your `State'
 -- ski: (it might help to define a `tick :: State Integer Integer', that yields the current count, while also post-incrementing it)
+
+data Tree a = Leaf a | Node (Tree a) (Tree a) deriving Show
+
+instance Functor Tree where
+   fmap :: (a -> b) -> Tree a  -> Tree b
+   fmap    f        (Leaf a)   =  Leaf $ f a
+   fmap    f        (Node x y) =  Node (f <$> x) (f <$> y)
+
+-- >>> relabel 0 (Node (Leaf "a") (Node (Leaf "b") (Leaf "c")))
+-- Node (Leaf (1,"a")) (Node (Leaf (3,"b")) (Leaf (4,"c")))
+relabel :: Integer -> Tree a -> Tree (Integer, a)
+relabel n (Leaf x) = Leaf (n, x)
+relabel n (Node x y) = Node (relabel (n+1) x) (relabel (n+2) y)
+
+-- :t relabel' (Node (Leaf "a") (Node (Leaf "b") (Leaf "c")))
+-- :: State Integer (Tree (Integer, String))
+--
+-- :t runState
+-- runState :: State s a -> s -> (a, s)
+-- 
+-- >>> flip runState 0 $ relabel' (Node (Leaf "a") (Node (Leaf "b") (Leaf "c")))
+-- (Node (Leaf (0,"a")) (Node (Leaf (1,"b")) (Leaf (2,"c"))),3)
+relabel' :: Tree a -> State Integer (Tree (Integer, a))
+relabel' (Leaf x) = do
+                       n <- get
+                       set $ n + 1
+                       return $ Leaf (n, x)
+relabel' (Node x y) = do
+                        x' <- relabel' x
+                        y' <- relabel' y
+                        return $ Node x' y'

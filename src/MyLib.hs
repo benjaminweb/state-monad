@@ -17,3 +17,8 @@ type State s a = (s -> (a, s))
 -- f               >>= g                    = \s -> let (a, s') = f s in g _a _s
 -- f               >>= g                    = \s -> let (a, s') = f s in g a s'
 f                  >>= g                    = \s -> let (x, s') = f s in g x s'
+
+return :: a    -> State s a
+-- return :: a -> (s -> (a, s))
+-- return x = \s -> _ :: (a, s)
+return x    = \s -> (x, s)

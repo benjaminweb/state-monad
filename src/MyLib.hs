@@ -10,7 +10,7 @@ someFunc = putStrLn "someFunc"
 --   more parameters such as (a->b->s->(result, s)), then you add Functor Applicative Monad instances and eventually it just works
 
 -- type State s a = (s -> (a, s))
-newtype State s a = MkState (s -> (a, s))
+newtype State s a = MkState {runState :: s -> (a, s)}
 
 instance Functor (State s) where
 -- fmap :: (a -> b) -> f a                     -> f b
@@ -57,6 +57,6 @@ evalState :: State s a -> s -> a
 -- evalState :: (s -> (a, s)) -> s   ->                        a
 evalState       (MkState f)   =  \s0 -> let (a, _s1) = f s0 in a
 
-runState ::    State s a -> s -> (a, s)
--- runState :: (s -> (a, s)) -> s  -> (a, s)
-runState       (MkState f)      s0 =  f s0
+runState' ::    State s a -> s -> (a, s)
+-- runState' :: (s -> (a, s)) -> s  -> (a, s)
+runState'       (MkState f)      s0 =  f s0

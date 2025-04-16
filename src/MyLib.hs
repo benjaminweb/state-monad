@@ -25,6 +25,10 @@ instance Applicative (State s) where
    (<*>)    (MkState f)                     (MkState g)             =  MkState $ \s0 -> let (f', s1)   = f s0
                                                                                             (a, s2)    = g s1
                                                                                          in (f' a, s2)
+-- pure :: a -> f a
+   pure :: a -> State s a
+   pure    a =  MkState $ \s -> (a, s)
+  
 instance Monad (State s) where
 -- (>>=) :: m a                   -> (a -> m b)                   -> m b
    (>>=) :: State s a             -> (a -> State s b)             -> State s b

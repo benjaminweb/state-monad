@@ -56,3 +56,7 @@ get    =  MkState $ \s -> (s, s)
 evalState :: State s a -> s -> a
 -- evalState :: (s -> (a, s)) -> s   ->                        a
 evalState       (MkState f)   =  \s0 -> let (a, _s1) = f s0 in a
+
+runState ::    State s a -> s -> (a, s)
+-- runState :: (s -> (a, s)) -> s  -> (a, s)
+runState       (MkState f)      s0 =  f s0

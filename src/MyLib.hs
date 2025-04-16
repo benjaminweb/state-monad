@@ -24,13 +24,12 @@ instance Applicative (State s) where
    (<*>)  (MkState f)                     (MkState g)             =  MkState $ \s0 -> let (f', s1)   = f s0
                                                                                           (a, s2)    = g s1
                                                                                        in (f' a, s2)
+instance Monad (State s) where
+-- (>>=) :: Monad m => m a                   -> (a -> m b)                   -> m b
+-- (>>=) :: Monad m => State s a             -> (a -> State s b)             -> State s b
+-- (>>=) :: Monad m => MkState (s -> (a, s)) -> (a -> MkState (s -> (b, s))) -> MkState (s -> (b, s))
+(>>=)                  (MkState f)              g                             = MkState $ \s0 -> let (a, s1) = f s0 in g a
 
---instance Monad State s where
---(>>=) :: State s a       -> (a -> State s b)              -> State s b
---       f               ->  g                            -> _
---       f               >>= g                            -> (s -> (b, s))
---   State (s -> (a, s)) >>= (a -> (State (s -> (b, s)))) -> State (s -> (b, s))
---  f                   >>= g                            = State (\s -> let (a, s') = f s in g a)
 
 return :: a    -> State s a
 -- return :: a -> (s -> (a, s))

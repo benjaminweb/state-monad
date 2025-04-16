@@ -37,3 +37,7 @@ return :: a    -> State s a
 -- return :: a -> (s -> (a, s))
 -- return x = \s -> _ :: (a, s)
 return x    = MkState $ \s -> (x, s)
+
+-- task 2:
+-- [exa]: bwe: as the next task try to think how to implement "set state" function and "get state" function
+-- [exa]: (the types of these should be roughly `s -> State s ()` and `State s s`, respectively)

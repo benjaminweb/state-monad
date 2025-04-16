@@ -15,24 +15,23 @@ newtype State s a = MkState (s -> (a, s))
 instance Functor (State s) where
 -- fmap :: (a -> b) -> f a                     -> f b
    fmap :: (a -> b) -> State s a               -> State s b
--- fmap :: (a -> b) -> MkState (s0 -> (a, s1)) -> MkState (s0 -> (l, s1))
+-- fmap :: (a -> b) -> (s0 -> (a, s1))         -> (s0 -> (b, s1))
    fmap    f           (MkState g)             =  MkState $ \s0 -> let (a, s1) = g s0 in (f a, s1)
 
 instance Applicative (State s) where
 -- (<*>) :: f (a -> b)                   -> f a                     -> f b
    (<*>) :: State s (a -> b)             -> State s a               -> State s b
--- (<*>) :: MkState (s0 -> (a -> b, s1)) -> MkState (s0 -> (a, s1)) -> MkState (s0 -> (b, s1))
-   (<*>)  (MkState f)                     (MkState g)                =  MkState $ \s0 -> let (f', s1)   = f s0
-                                                                                             (a, s2)    = g s1
+-- (<*>) :: (s0 -> (a -> b, s1))         -> (s1 -> (a, s2))         -> (s2 -> (b, s3))
+   (<*>)    (MkState f)                     (MkState g)             =  MkState $ \s0 -> let (f', s1)   = f s0
+                                                                                            (a, s2)    = g s1
                                                                                          in (f' a, s2)
 instance Monad (State s) where
--- (>>=) :: Monad m => m a                   -> (a -> m b)                   -> m b
-   (>>=) ::                                     State s a                    -> (a -> State s b)             -> State s b
--- (>>=) ::                                     MkState (s -> (a, s))        -> (a -> MkState (s -> (b, s))) -> MkState (s -> (b, s))
-   (>>=)                                        (MkState f)                     g                             = MkState $ \s0 -> let (a, s1)    = f s0
-                                                                                                                                     MkState g' = g a
-                                                                                                                                  in g' s1
-
+-- (>>=) :: m a                   -> (a -> m b)                   -> m b
+   (>>=) :: State s a             -> (a -> State s b)             -> State s b
+-- (>>=) :: (s -> (a, s))         -> (a -> (s -> (b, s)))         -> (s -> (b, s))
+   (>>=)    (MkState f)              g                            =  MkState $ \s0 -> let (a, s1)    = f s0
+                                                                                          MkState g' = g a
+                                                                                       in g' s1
 
 return :: a    -> State s a
 -- return :: a -> (s -> (a, s))

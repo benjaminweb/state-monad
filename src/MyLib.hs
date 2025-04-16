@@ -1,5 +1,5 @@
 {-# LANGUAGE InstanceSigs #-}
-module MyLib (someFunc) where
+module MyLib where
 
 someFunc :: IO ()
 someFunc = putStrLn "someFunc"
@@ -53,3 +53,11 @@ set    s1   =  MkState $ \_s0 -> ((), s1)
 get :: State s s
 -- get :: (s -> (s, s))
 get    =  MkState $ \s -> (s, s)
+
+-- task 3:
+-- [exa]: so essentially what you need now is some helper tool for the "users" that allows you to run the state (starting with some initial state),
+--        e.g. `evalState :: State s a -> s -> a` or so
+
+evalState :: State s a -> s -> a
+-- evalState :: (s -> (a, s)) -> s   ->                        a
+evalState       (MkState f)   =  \s0 -> let (a, _s1) = f s0 in a

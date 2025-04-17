@@ -74,10 +74,10 @@ instance Functor Tree where
    fmap    f           (Leaf a)   =  Leaf $ f a
    fmap    f           (Node x y) =  Node (f <$> x) (f <$> y)
 
--- >>> relabel 0 (Node (Node (Leaf "a") (Lead "b")) (Node (Leaf "c") (Leaf "d")))
--- Node (Leaf (1,"a")) (Node (Leaf (3,"b")) (Leaf (4,"c")))
-relabel :: Integer   -> Tree a     ->  Tree (Integer, a)
-relabel = (fst . ) . go
+-- >>> relabel (Node (Node (Leaf "a") (Leaf "b")) (Node (Leaf "c") (Leaf "d")))
+-- Node (Node (Leaf (0,"a")) (Leaf (1,"b"))) (Node (Leaf (2,"c")) (Leaf (3,"d")))
+relabel :: Tree a ->  Tree (Integer, a)
+relabel = fst . go 0
 
 go :: Integer -> Tree a     -> (Tree (Integer, a), Integer)
 go    n          (Leaf x)   =  (Leaf (n, x), n + 1)

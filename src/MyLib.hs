@@ -114,14 +114,12 @@ relabel' (Node l r) = relabel' l >>= \l' ->
                       return $ Node l' r'
 -}
 
--- >>> flip runState 0 $ tick
+-- >>> runState tick 0
 -- (0,1)
 --
--- >>> flip runState 1 $ tick
+-- >>> runState tick 1
 -- (1,2)
 tick :: State Integer Integer
 -- tick :: (s -> (s, s))
-tick = do
-       n <- get
-       _ <- set $ n + 1
-       return n
+tick =  get
+     <* modify (1+)

@@ -93,21 +93,26 @@ go    n          (Node l r) =  let (l', n1)   = go n l
                                    (r', n2)   = go n1 r
                                in  (Node l' r', n2)
 
--- :t relabel' (Node (Leaf "a") (Node (Leaf "b") (Leaf "c")))
+-- >>> relabel' (Node (Node (Leaf "a") (Leaf "b")) (Node (Leaf "c") (Leaf "d")))
+-- Node (Node (Leaf (0,"a")) (Leaf (1,"b"))) (Node (Leaf (2,"c")) (Leaf (3,"d")))
+relabel' :: Tree a -> Tree (Integer, a)
+relabel' = flip evalState 0 . relabelState
+
+-- :t relabelState (Node (Leaf "a") (Node (Leaf "b") (Leaf "c")))
 -- :: State Integer (Tree (Integer, String))
 --
 -- :t runState
 -- runState :: State s a -> s -> (a, s)
 -- 
--- >>> flip runState 0 $ relabel' (Node (Node (Leaf "a") (Leaf "b")) (Node (Leaf "c") (Leaf "d")))
+-- >>> flip runState 0 $ relabelState (Node (Node (Leaf "a") (Leaf "b")) (Node (Leaf "c") (Leaf "d")))
 -- (Node (Node (Leaf (0,"a")) (Leaf (1,"b"))) (Node (Leaf (2,"c")) (Leaf (3,"d"))),4)
-relabel' :: Tree a -> State Integer (Tree (Integer, a))
-relabel' (Leaf x) = Leaf . (, x) <$> tick
+relabelState :: Tree a -> State Integer (Tree (Integer, a))
+relabelState (Leaf x) = Leaf . (, x) <$> tick
 -- [exa]: bwe: either do or applicative notation, try this: `(+) <$> Just 3 <*> Just 5`
 -- ski: bwe : finally, you can use `(<*>)' (and `(<$>)'), rather than `(>>=)', in the version using `State'. if you define `tick :: State Integer
 --            Integer', you can avoid the `do', too
 -- applicative notation
-relabel' (Node l r) = Node <$> relabel' l <*> relabel' r
+relabelState (Node l r) = Node <$> relabelState l <*> relabelState r
 {- do notation
 relabel' (Node l r) = relabel' l >>= \l' ->
                       relabel' r >>= \r' ->

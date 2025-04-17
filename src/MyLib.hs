@@ -49,6 +49,8 @@ get :: State s s
 -- get :: (s -> (s, s))
 get    =  MkState $ \s -> (s, s)
 
+-- [exa]: also in common libraries the get/set combo is normally called `modify`, with that you can shorten what you have on lines 98&99 to a nice `modify (+1)`
+
 -- task 3:
 -- [exa]: so essentially what you need now is some helper tool for the "users" that allows you to run the state (starting with some initial state),
 --        e.g. `evalState :: State s a -> s -> a` or so
@@ -98,6 +100,13 @@ relabel' (Leaf x) = do
                       n <- get
                       set $ n + 1
                       return $ Leaf (n, x)
+-- [exa]: bwe: either do or applicative notation, try this: `(+) <$> Just 3 <*> Just 5`
+-- ski: bwe : finally, you can use `(<*>)' (and `(<$>)'), rather than `(>>=)', in the version using `State'. if you define `tick :: State Integer
+--            Integer', you can avoid the `do', too
+-- applicative notation
+relabel' (Node l r) = Node <$> relabel' l <*> relabel' r
+{- do notation
 relabel' (Node l r) = relabel' l >>= \l' ->
                       relabel' r >>= \r' ->
                       return $ Node l' r'
+-}

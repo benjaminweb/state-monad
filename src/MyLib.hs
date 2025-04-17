@@ -96,7 +96,7 @@ go    n          (Node l r) =  let (l', n1)   = go n l
 -- >>> relabel' (Node (Node (Leaf "a") (Leaf "b")) (Node (Leaf "c") (Leaf "d")))
 -- Node (Node (Leaf (0,"a")) (Leaf (1,"b"))) (Node (Leaf (2,"c")) (Leaf (3,"d")))
 relabel' :: Tree a -> Tree (Integer, a)
-relabel' = flip evalState 0 . relabelState
+relabel' =  (`evalState` 0) . relabelState
 
 -- :t relabelState (Node (Leaf "a") (Node (Leaf "b") (Leaf "c")))
 -- :: State Integer (Tree (Integer, String))
@@ -125,6 +125,6 @@ relabel' (Node l r) = relabel' l >>= \l' ->
 -- >>> runState tick 1
 -- (1,2)
 tick :: State Integer Integer
--- tick :: (s -> (s, s))
+--( ti`ck ):: (s -> (s, s))
 tick =  get
      <* modify (1+)

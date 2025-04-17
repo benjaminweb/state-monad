@@ -96,10 +96,7 @@ go    n          (Node l r) =  let (l', n1)   = go n l
 -- >>> flip runState 0 $ relabel' (Node (Node (Leaf "a") (Leaf "b")) (Node (Leaf "c") (Leaf "d")))
 -- (Node (Node (Leaf (0,"a")) (Leaf (1,"b"))) (Node (Leaf (2,"c")) (Leaf (3,"d"))),4)
 relabel' :: Tree a -> State Integer (Tree (Integer, a))
-relabel' (Leaf x) = do
-                      n <- get
-                      set $ n + 1
-                      return $ Leaf (n, x)
+relabel' (Leaf x) = tick >>= \n -> return $ Leaf (n, x)
 -- [exa]: bwe: either do or applicative notation, try this: `(+) <$> Just 3 <*> Just 5`
 -- ski: bwe : finally, you can use `(<*>)' (and `(<$>)'), rather than `(>>=)', in the version using `State'. if you define `tick :: State Integer
 --            Integer', you can avoid the `do', too

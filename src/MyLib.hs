@@ -18,6 +18,12 @@ instance Functor (State s) where
 -- fmap :: (a -> b) -> (s -> (a, s))           -> (s -> (b, s))
    fmap    f           (MkState g)             =  MkState $ \s0 -> let (a, s1) = g s0 in (f a, s1)
 
+-- >>> runState (modify (1+)) 0
+-- (1,1)
+modify :: (s -> s) -> State s s
+-- modify :: (s -> s) -> (s -> (s, s))
+modify f = MkState $ \s -> let s' = f s in (s', s')
+
 instance Applicative (State s) where
 -- (<*>) :: f (a -> b)                   ->  f a                     -> f b
    (<*>) :: State s (a -> b)             ->  State s a               -> State s b

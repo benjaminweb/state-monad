@@ -128,3 +128,14 @@ tick :: State Integer Integer
 -- tick :: (s -> (s, s))
 tick =  get
      <* modify (1+)
+
+
+
+-- /// state implementation for non-short-circuitting error
+
+data ErrorVariant = Error1 | Error2 deriving (Show, Eq)
+
+-- >>> runState simpleError []
+-- (1,[Error2,Error1])
+simpleErrors :: State [ErrorVariant] Int
+simpleErrors = pure 1 <* modify (Error1 : ) <* modify (Error2 :)

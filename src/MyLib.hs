@@ -133,9 +133,38 @@ tick =  get
 
 -- /// state implementation for non-short-circuitting error
 
-data ErrorVariant = Error1 | Error2 deriving (Show, Eq)
+data ErrorVariant = Error1 | Error2 | Error3 | Error4 | Error5 deriving (Show, Eq)
 
--- >>> runState simpleError []
+-- >>> runState (simpleErrorsSub 1) []
 -- (1,[Error2,Error1])
-simpleErrors :: State [ErrorVariant] Int
-simpleErrors = pure 1 <* modify (Error1 : ) <* modify (Error2 :)
+simpleErrorsSub :: Int -> State [ErrorVariant] Int
+simpleErrorsSub n = pure n <* modify (Error1 : ) <* modify (Error2 :)
+
+simpleErrorsMain :: Int -> State [ErrorVariant] (Maybe Int)
+simpleErrorsMain n = do
+   res <- simpleErrorsSub n
+   case res of
+     1 -> pure (Just 1) <* modify (Error2 :)
+     2 -> pure Nothing <* modify (Error3 :)
+     3 -> pure (Just 3) <* modify (Error4 :)
+     _ -> pure Nothing <* modify (Error5 :)
+
+fromStateRun :: (Maybe a, [ErrorVariant]) -> ReturnVariant a
+fromStateRun (Nothing, xs) = Failed xs
+fromStateRun (Just x, []) = Succeeded x
+fromStateRun (Just x, xs) = SucceededWithErrors xs x
+
+-- >>> demo 1
+-- SucceededWithErrors [Error2,Error2,Error1] 1
+--
+-- >>> demo 2
+-- Failed [Error3,Error2,Error1]
+--
+-- >>> demo 3
+-- SucceededWithErrors [Error4,Error2,Error1] 3
+demo n = fromStateRun $ runState (simpleErrorsMain n) []
+
+data ReturnVariant a = Failed [ErrorVariant] -- < with errors but with value
+                     | SucceededWithErrors [ErrorVariant] a -- < without errors with value
+                     | Succeeded a -- < with errors without value
+                     deriving (Show, Eq)

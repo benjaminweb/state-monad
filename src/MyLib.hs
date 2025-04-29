@@ -125,6 +125,6 @@ relabel' (Node l r) = relabel' l >>= \l' ->
 -- >>> runState tick 1
 -- (1,2)
 tick :: State Integer Integer
---( ti`ck ):: (s -> (s, s))
+-- tick :: (s -> (s, s))
 tick =  get
      <* modify (1+)
